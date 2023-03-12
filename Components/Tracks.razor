@@ -1,0 +1,72 @@
+@inject JukeboxService Service
+@using JukeboxWeb.Services
+@using JukeboxWeb.Model
+@implements IDisposable
+@* ValueExpression="() => SearchBox"  *@
+<input type="text" class="rounded w-full mb-4" placeholder="Search for a track..." value="@SearchBox" @oninput="@HandleSearchBoxChanged"/>
+
+<div class="mt-2 ml-1 text-white overflow-y-scroll h-[50%] pr-4">
+    <div class="h-[100%]">
+        @if (Service.FilteredTracks != null)
+        {
+            @foreach (var track in Service.FilteredTracks)
+            {
+                <div class="flex items-stretch first:mt-0 mt-2">
+                    <img src="data:image/jpeg;base64,@track?.Image" class="w-16 h-16 object-center rounded-lg" alt=""/>
+                    <div class="ml-2 flex flex-col justify-center">
+                        <p class="font-bold">
+                            @track?.Title
+                        </p>
+                        <p class="text-sm px-0.5 font-medium text-gray-300">
+                            @track?.Artist
+                        </p>
+                        <p class="text-sm px-0.5 font-medium text-gray-400">
+                            @track?.Album
+                        </p>
+                    </div>
+                    <button @onclick="() => HandleAddToQueue(track)" class="text-sky-500 hover:text-sky-600 active:text-sky-700 focus:outline-none focus:ring focus:ring-blue-300 rounded-full my-auto ml-auto ">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+
+                    </button>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+
+    string SearchBox { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Service.OnChange += StateHasChanged;
+        await Service.GetTracks();
+    }
+
+    public void Dispose()
+    {
+        Service.OnChange -= StateHasChanged;
+    }
+
+    // void HandleSearchBoxChanged(string newSearch)
+    // {
+    //     SearchBox = newSearch;
+    //     Service.FilteredTracks = Service.Tracks.Where(t => $"{t.Title} {t.Artist} {t.Album}".ToLower().Contains(SearchBox.ToLower())).ToList();
+    // }    
+    void HandleSearchBoxChanged(ChangeEventArgs e)
+    {
+        var newSearch = e.Value.ToString();
+        SearchBox = newSearch;
+        Service.FilteredTracks = Service.Tracks.Where(t => $"{t.Title} {t.Artist} {t.Album}".ToLower().Contains(SearchBox.ToLower())).ToList();
+        Console.WriteLine($"searched: {SearchBox} \n found: {Service.FilteredTracks.Count} tracks");
+    }
+
+    async Task HandleAddToQueue(Track track)
+    {
+        await Service.AddToQueue(track);
+    }
+
+}

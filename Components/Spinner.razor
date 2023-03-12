@@ -1,0 +1,14 @@
+@if (Show)
+{
+    <div class="h-full w-full bg-white absolute flex flex-col justify-center align-center">
+        @* <i class="fa-solid fa-asterisk animate-spin text-black mx-auto my-auto text-5xl"></i> *@
+        <i class="fa-solid fa-stroopwafel animate-spin text-black mx-auto my-auto text-5xl"></i>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public bool Show { get; set; }
+
+}

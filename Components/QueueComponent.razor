@@ -1,0 +1,77 @@
+@using JukeboxWeb.Services
+@using JukeboxWeb.Model
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using SocketIOClient
+@inject JukeboxSocketService SocketService
+@inject JukeboxService Service
+@implements IDisposable
+@* <i class="fa-solid fa-rectangle-history-circle-plus"></i> *@
+<div class="text-white mx-24">
+    <div class="">
+        <img src="data:image/jpeg;base64,@Service.NowPlaying?.Image" class=" object-cover rounded-lg" alt=""/>
+        <div class="mt-4 px-1">
+            <p class="text-3xl font-bold">
+                @(Service.NowPlaying?.Title)
+            </p>
+            <p class="px-0.5 text-xl font-medium text-gray-300">
+                @(Service.NowPlaying?.Artist)
+            </p>
+            <p class="px-0.5 text-xl font-medium text-gray-400">
+                @(Service.NowPlaying?.Album)
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-4 ml-1 px-1">
+        <p class="text-sm font-semibold">
+            Next in queue:
+        </p>
+        <div class="mt-2">
+            @if (SocketService.Queue != null)
+            {
+                @foreach (var track in SocketService.Queue.Skip(1))
+                {
+                    <div class="flex first:mt-0 mt-2">
+                        <img src="data:image/jpeg;base64,@track?.Image" class="w-16 h-16 object-center rounded-lg" alt=""/>
+                        <div class="ml-2 flex flex-col justify-center">
+                            <p class="font-bold">
+                                @track?.Title
+                            </p>
+                            <p class="text-sm px-0.5 font-medium text-gray-300">
+                                @track?.Artist
+                            </p>
+                            <p class="text-sm px-0.5 font-medium text-gray-400">
+                                @track?.Album
+                            </p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    Track? NowPlaying { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        SocketService.OnChange += StateHasChanged;
+        Service.OnChange += StateHasChanged;
+        await Service.GetNowPlaying();
+
+        await SocketService.Init(async () =>
+        {
+            await Service.GetNowPlaying();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        SocketService.OnChange -= StateHasChanged;
+        Service.OnChange -= StateHasChanged;
+    }
+
+}

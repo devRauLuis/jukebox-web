@@ -1,0 +1,34 @@
+@using JukeboxWeb.Services
+@using JukeboxWeb.Components
+@inject JukeboxService Service
+@implements IDisposable
+
+<div class="bg-gradient-to-br from-slate-700 via-slate-600 to-black h-[100vh] overflow-y-clip">
+
+    <Spinner Show="@Service.ShowTracksLoading"/>
+    @* <Spinner Show="true"/> *@
+
+    <div class="py-12 px-12 grid grid-cols-2 w-full justify-between content-between gap-12 bottom-gradient">
+        <div class="">
+            <QueueComponent/>
+        </div>
+        <div class="px-2">
+            <Tracks/>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        Service.OnChange += StateHasChanged;
+        await Service.GetTracks();
+    }
+
+    public void Dispose()
+    {
+        Service.OnChange -= StateHasChanged;
+    }
+
+}

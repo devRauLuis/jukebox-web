@@ -1,0 +1,32 @@
+# Compiled output
+bin
+obj
+
+# Visual Studio files
+*.suo
+*.cache
+*.pdb
+*.user
+*.vspscc
+*.vsp
+*.obj
+*.dll
+*.exe
+*.log
+*.vs/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+build/
+[Bb]in/
+
+# NPM and Yarn files
+node_modules/
+yarn.lock
+package-lock.json
+
+# Other generated files
+wwwroot/dist/
+
